@@ -9,6 +9,7 @@ import * as path from 'path';
 import * as os from 'os';
 import express from 'express';
 import console from 'console';
+import axios from 'axios';
 
 // -----------------------------------------------------------------------------
 
@@ -45,6 +46,17 @@ app.use((req, _, next) => {
 // Home and Assets Directory
 app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.use('/assets', express.static(assetsDir, {fallthrough: false}));
+
+// Try requesting json data from the rasp pi server instance
+app.get('/api/', (req, res) => {
+    axios.get('http://192.168.178.39:3000/')
+        .then((response) => {
+            res.send(response.data);
+        })
+        .catch((error) => {
+            res.send(error);
+        });
+});
 
 // Create and Start Server
 https.createServer({key,cert}, app).listen(port, () => {
