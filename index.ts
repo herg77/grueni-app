@@ -47,7 +47,7 @@ app.use((req, _, next) => {
 app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.use('/assets', express.static(assetsDir, {fallthrough: false}));
 
-// Try requesting json data from the rasp pi server instance
+// try requesting json data from the raspi server instance
 app.get('/api/', (req, res) => {
     axios.get('http://192.168.178.39:3000/')
         .then((response) => {
