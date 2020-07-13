@@ -10,6 +10,7 @@ import * as os from 'os';
 import express from 'express';
 import console from 'console';
 import axios from 'axios';
+import * as ejs from 'ejs';
 
 // -----------------------------------------------------------------------------
 
@@ -44,17 +45,38 @@ app.use((req, _, next) => {
 });
 
 // Home and Assets Directory
-app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'index.html.ejs')));
 app.use('/assets', express.static(assetsDir, {fallthrough: false}));
 
 // try requesting json data from the raspi server instance
 app.get('/api/', (req, res) => {
+    let handleResponse = (data) => {
+        ejs.renderFile(path.join(__dirname, 'index.html.ejs'), data, null, (err, str) => {
+            if(err)
+            {
+                console.log(err);
+                res.send('Something went wrong!');
+            }
+            else
+            {
+               res.send(str);
+            }
+        }); 
+    };
+    
     axios.get('http://192.168.178.39:3000/')
         .then((response) => {
-            res.send(response.data);
+            let plantInfo = {
+                plantName: 'Erika',
+                plantDetails: JSON.stringify(response.data)
+            }
+
+            console.log(response);
+            handleResponse(plantInfo);
         })
         .catch((error) => {
-            res.send(error);
+            console.log(error);
+            handleResponse(null);
         });
 });
 
